@@ -16,6 +16,7 @@ export default StyleSheet.create({
   },
   text: {
     ...fonts.primaryH2,
+    fontSize: 30,
     color: '#fff',
     textAlign: 'center',
   }

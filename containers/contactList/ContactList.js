@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, Button, Text, FlatList } from 'react-native';
+import { View, RefreshControl, FlatList } from 'react-native';
 import { ContactRow } from './components/ContactRow/ContactRow';
 import { routes } from '../../constants/routes';
 import { ContactApi } from '../../asyncActions/contactApi';
 import { FloatingButton } from '../../components/floatingButton/FloatingButton';
 import { ItemSeparator } from '../../components/itemSeparator/ItemSeparator';
+import { color } from '../../themes/color';
 
 export class ContactList extends React.Component {
 
-  static navigationOptions = ({ navigation }) => {
+  static navigationOptions = () => {
     return {
       header: null
     }
@@ -17,12 +18,13 @@ export class ContactList extends React.Component {
   constructor() {
     super();
     this.state = {
-      contacts: []
+      contacts: [],
     }
 
     this.navigateToContactDetails = this.navigateToContactDetails.bind(this);
     this.navigateToAddContact = this.navigateToAddContact.bind(this);
     this.handleRenderContact = this.handleRenderContact.bind(this);
+    this.getContacts = this.getContacts.bind(this);
   }
 
   componentDidMount() {
@@ -37,7 +39,8 @@ export class ContactList extends React.Component {
             contacts: response.data.data
           })
         }
-      });
+      })
+      .catch(() => { });
   }
 
   handleRenderContact({ item }) {
@@ -72,8 +75,15 @@ export class ContactList extends React.Component {
           keyExtractor={this.keyExtractor}
           style={{ flex: 1 }}
           ItemSeparatorComponent={ItemSeparator}
+          refreshControl={
+            <RefreshControl
+              refreshing={false}
+              onRefresh={this.getContacts}
+              colors={[color.primary]}
+            />
+          }
         />
-        <FloatingButton title="+" onPress={this.navigateToAddContact} />
+        <FloatingButton name="add" onPress={this.navigateToAddContact} />
       </View>
     );
   }

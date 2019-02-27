@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, View, ScrollView } from 'react-native';
 import { JTextInput } from '../../components/jTextInput/JTextInput';
 import { ContactApi } from '../../asyncActions/contactApi';
 import { connect } from 'react-redux';
@@ -7,6 +7,8 @@ import { updateContact } from '../../actions/contactActions';
 import { ImageRounded } from '../../components/imageRounded/ImageRounded';
 import styles from './EditContact.style';
 import { Button } from '../../components/button/Button';
+import { showLoading, dismissLoading } from '../../actions/uiActions';
+import { JImagePicker } from '../../components/jImagePicker/JImagePicker';
 
 class EditContact extends React.Component {
   constructor(props) {
@@ -27,6 +29,7 @@ class EditContact extends React.Component {
     this.handleOnFirstNameChange = this.handleOnFirstNameChange.bind(this);
     this.handleOnLastNameChange = this.handleOnLastNameChange.bind(this);
     this.handleOnAgeChange = this.handleOnAgeChange.bind(this);
+    this.handleOnImagePicked = this.handleOnImagePicked.bind(this);
     this.editContact = this.editContact.bind(this);
   }
 
@@ -39,6 +42,9 @@ class EditContact extends React.Component {
   handleOnAgeChange(age) {
     this.setState({ age });
   }
+  handleOnImagePicked(photo) {
+    this.setState({ photo });
+  }
 
   editContact() {
     const { firstName, lastName, age, photo } = this.state;
@@ -49,6 +55,8 @@ class EditContact extends React.Component {
       age: +age,
       photo
     }
+
+    this.props.dispatch(showLoading());
     ContactApi.editContact({
       id,
       ...updatedContact
@@ -61,18 +69,16 @@ class EditContact extends React.Component {
           { text: 'OK', onPress: () => this.props.navigation.goBack() }
         ]
       )
-    }).catch(err => { });
+    }).catch(err => { })
+      .then(() => this.props.dispatch(dismissLoading()));
   }
 
   render() {
     const { firstName, firstNameErr, lastName, lastNameErr, age, ageErr, photo } = this.state;
 
     return (
-      <View style={styles.container}>
-        <ImageRounded
-          source={{ uri: photo }}
-          style={styles.profPic}
-        />
+      <ScrollView style={styles.container}>
+        <JImagePicker onImagePicked={this.handleOnImagePicked} uri={photo} />
         <JTextInput
           value={firstName}
           onChangeText={this.handleOnFirstNameChange}
@@ -93,7 +99,7 @@ class EditContact extends React.Component {
           keyboardType={'phone-pad'}
         />
         <Button title="Save" onPress={this.editContact} />
-      </View>
+      </ScrollView>
     );
   }
 }

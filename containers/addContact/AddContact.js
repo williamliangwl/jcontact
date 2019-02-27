@@ -1,12 +1,14 @@
 import React from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { JTextInput } from '../../components/jTextInput/JTextInput';
 import { ContactApi } from '../../asyncActions/contactApi';
 import styles from './AddContact.styles';
 import { Button } from '../../components/button/Button';
-import { ImageRounded } from '../../components/imageRounded/ImageRounded';
+import { showLoading, dismissLoading } from '../../actions/uiActions';
+import { connect } from 'react-redux';
+import { JImagePicker } from '../../components/jImagePicker/JImagePicker';
 
-export class AddContact extends React.Component {
+class AddContact extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -22,6 +24,7 @@ export class AddContact extends React.Component {
     this.handleOnFirstNameChange = this.handleOnFirstNameChange.bind(this);
     this.handleOnLastNameChange = this.handleOnLastNameChange.bind(this);
     this.handleOnAgeChange = this.handleOnAgeChange.bind(this);
+    this.handleOnImagePicked = this.handleOnImagePicked.bind(this);
     this.addContact = this.addContact.bind(this);
   }
 
@@ -34,9 +37,17 @@ export class AddContact extends React.Component {
   handleOnAgeChange(age) {
     this.setState({ age });
   }
+  handleOnImagePicked(photo) {
+    this.setState({ photo });
+  }
 
   addContact() {
     const { firstName, lastName, age, photo } = this.state;
+
+    // for photo, it should be the URL after the image has been uploaded to server 
+    // OR we send the following payload as formData to server,
+    // For demo purpose, we use the local uri
+    this.props.dispatch(showLoading());
     ContactApi.addContact({
       firstName,
       lastName,
@@ -50,18 +61,16 @@ export class AddContact extends React.Component {
           { text: 'OK', onPress: () => this.props.navigation.goBack() }
         ]
       )
-    }).catch(err => { });
+    }).catch(err => { })
+      .then(() => this.props.dispatch(dismissLoading()));
   }
 
   render() {
     const { firstName, firstNameErr, lastName, lastNameErr, age, ageErr } = this.state;
 
     return (
-      <View style={styles.container}>
-        <ImageRounded
-          source={{ uri: 'https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cg_face%2Cq_auto:good%2Cw_300/MTM5NTI0MjQ1OTkzNTYzNTY4/prince_william_photo_max_mumby_indigo_getty_images_500321416_croppedjpg.jpg' }}
-          style={styles.profPic}
-        />
+      <ScrollView style={styles.container}>
+        <JImagePicker onImagePicked={this.handleOnImagePicked} />
         <JTextInput
           value={firstName}
           onChangeText={this.handleOnFirstNameChange}
@@ -82,7 +91,10 @@ export class AddContact extends React.Component {
           keyboardType={'phone-pad'}
         />
         <Button title="Save" onPress={this.addContact} />
-      </View>
+      </ScrollView>
     );
   }
 }
+
+const Component = connect()(AddContact);
+export { Component as AddContact }

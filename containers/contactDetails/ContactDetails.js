@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Button, View, Image, Text } from 'react-native';
+import { Alert, View, Text } from 'react-native';
 import { ContactApi } from '../../asyncActions/contactApi';
 import { routes } from '../../constants/routes';
 import { FloatingButton } from '../../components/floatingButton/FloatingButton';
@@ -74,11 +74,11 @@ class ContactDetails extends React.Component {
             'Delete Successful',
             'Contact has been deleted',
             [
-              { text: 'OK', onPress: this.props.navigation.goBack() },
+              { text: 'OK', onPress: () => this.props.navigation.goBack() },
             ]
           )
         }
-      })
+      }).catch(() => { })
   }
 
   navigateToEditContact() {
@@ -93,7 +93,7 @@ class ContactDetails extends React.Component {
     const { firstName, lastName, photo, age } = this.props.contact;
     return (
       <View style={styles.container}>
-        <FloatingButton title="Edit" onPress={this.navigateToEditContact} />
+        <FloatingButton name="create" onPress={this.navigateToEditContact} />
         <ImageRounded
           source={{ uri: photo }}
           style={styles.profPic}
