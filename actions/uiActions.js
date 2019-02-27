@@ -11,3 +11,16 @@ export function dismissLoading() {
     type: uiActionTypes.dismissLoading
   }
 }
+
+export function showErrorAlert(error) {
+  return {
+    type: uiActionTypes.showErrorAlert,
+    error
+  }
+}
+
+export function toastDisplayed() {
+  return {
+    type: uiActionTypes.toastDisplayed,
+  }
+}

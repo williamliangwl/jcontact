@@ -1,7 +1,8 @@
 import { uiActionTypes } from "../constants/uiActionTypes";
 
 const defaultState = {
-  showLoading: false
+  showLoading: false,
+  error: ''
 }
 
 export function uiReducer(state = defaultState, action) {
@@ -15,7 +16,17 @@ export function uiReducer(state = defaultState, action) {
       return {
         ...state,
         showLoading: false
-      }
+      };
+    case uiActionTypes.showErrorAlert:
+      return {
+        ...state,
+        error: action.error
+      };
+    case uiActionTypes.toastDisplayed:
+      return {
+        ...state,
+        error: ''
+      };
     default:
       return state;
   }

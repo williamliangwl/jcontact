@@ -1,4 +1,6 @@
 export const uiActionTypes = {
   showLoading: "showLoading",
-  dismissLoading: "dismissLoading"
+  dismissLoading: "dismissLoading",
+  showErrorAlert: "showErrorAlert",
+  toastDisplayed: "toastDisplayed",
 }

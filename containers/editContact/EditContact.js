@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { updateContact } from '../../actions/contactActions';
 import styles from './EditContact.style';
 import { Button } from '../../components/button/Button';
-import { showLoading, dismissLoading } from '../../actions/uiActions';
+import { showLoading, dismissLoading, showErrorAlert } from '../../actions/uiActions';
 import { JImagePicker } from '../../components/jImagePicker/JImagePicker';
 import { ContactValidator } from '../../validator/ContactValidator';
 
@@ -78,7 +78,6 @@ class EditContact extends React.Component {
       id,
       ...updatedContact
     }).then(response => {
-      console.warn(response);
       if (response.isSuccess) {
         this.props.dispatch(updateContact(updatedContact));
         Alert.alert(
@@ -88,6 +87,8 @@ class EditContact extends React.Component {
             { text: 'OK', onPress: () => this.props.navigation.goBack() }
           ]
         )
+      } else {
+        this.props.dispatch(showErrorAlert(response.data));
       }
     }).catch(err => { })
       .then(() => this.props.dispatch(dismissLoading()));
@@ -124,7 +125,7 @@ class EditContact extends React.Component {
   }
 }
 
-function mapStateToProps({ contact }) {
+function mapStateToProps({ contact: { contact } }) {
   return {
     contact
   }

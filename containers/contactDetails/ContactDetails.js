@@ -8,13 +8,15 @@ import { connect } from 'react-redux';
 import { setContact, resetContact } from '../../actions/contactActions';
 import { ImageRounded } from '../../components/imageRounded/ImageRounded';
 import { HeaderButton } from '../../components/button/HeaderButton';
+import { ContactDetailsSkeleton } from './components/contactDetailsSkeleton/ContactDetailsSkeleton';
+import { showErrorAlert } from '../../actions/uiActions';
 
 class ContactDetails extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
       headerRight: (
         <HeaderButton
-          title="Delete"
+          title="DELETE"
           textStyle={styles.deleteText}
           onPress={navigation.getParam('onDelete', () => { })}
         />
@@ -25,7 +27,9 @@ class ContactDetails extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {}
+    this.state = {
+      isLoading: false
+    }
 
     this.confirmDelete = this.confirmDelete.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
@@ -42,13 +46,18 @@ class ContactDetails extends React.Component {
       this.props.navigation.goBack();
     }
 
+    this.setState({ isLoading: true });
     ContactApi.getContactDetail(id)
       .then(response => {
         if (response.isSuccess) {
           const contact = response.data.data;
           this.props.dispatch(setContact(contact));
+        } else {
+          this.props.dispatch(showErrorAlert(response.data));
         }
       })
+      .catch(() => { })
+      .then(() => this.setState({ isLoading: false }));
   }
 
   componentWillUnmount() {
@@ -77,8 +86,11 @@ class ContactDetails extends React.Component {
               { text: 'OK', onPress: () => this.props.navigation.goBack() },
             ]
           )
+        } else {
+          this.props.dispatch(showErrorAlert(response.data));
         }
-      }).catch(() => { })
+      })
+      .catch(() => { })
   }
 
   navigateToEditContact() {
@@ -86,8 +98,10 @@ class ContactDetails extends React.Component {
   }
 
   render() {
-    if (!this.props.contact) {
-      return null;
+    if (!Object.keys(this.props.contact).length) {
+      return (
+        <ContactDetailsSkeleton />
+      );
     }
 
     const { firstName, lastName, photo, age } = this.props.contact;
@@ -107,7 +121,7 @@ class ContactDetails extends React.Component {
   }
 }
 
-function mapStateToProps({ contact }) {
+function mapStateToProps({ contact: { contact } }) {
   return {
     contact
   }

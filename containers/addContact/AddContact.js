@@ -4,10 +4,11 @@ import { JTextInput } from '../../components/jTextInput/JTextInput';
 import { ContactApi } from '../../asyncActions/contactApi';
 import styles from './AddContact.styles';
 import { Button } from '../../components/button/Button';
-import { showLoading, dismissLoading } from '../../actions/uiActions';
+import { showLoading, dismissLoading, showErrorAlert } from '../../actions/uiActions';
 import { connect } from 'react-redux';
 import { JImagePicker } from '../../components/jImagePicker/JImagePicker';
 import { ContactValidator } from '../../validator/ContactValidator';
+import { notifyUpdate } from '../../actions/contactActions';
 
 class AddContact extends React.Component {
   constructor() {
@@ -72,13 +73,18 @@ class AddContact extends React.Component {
       age: +age,
       photo
     }).then(response => {
-      Alert.alert(
-        'Successful Add Contact',
-        'A new contact has been added successfully',
-        [
-          { text: 'OK', onPress: () => this.props.navigation.goBack() }
-        ]
-      )
+      if (response.isSuccess) {
+        this.props.dispatch(notifyUpdate());
+        Alert.alert(
+          'Successful Add Contact',
+          'A new contact has been added successfully',
+          [
+            { text: 'OK', onPress: () => this.props.navigation.goBack() }
+          ]
+        )
+      } else {
+        this.props.dispatch(showErrorAlert(response.data));
+      }
     }).catch(err => { })
       .then(() => this.props.dispatch(dismissLoading()));
   }

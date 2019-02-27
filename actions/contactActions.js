@@ -19,3 +19,15 @@ export function resetContact() {
     type: contactActionType.resetContact,
   }
 }
+
+export function notifyUpdate() {
+  return {
+    type: contactActionType.notifyUpdate
+  }
+}
+
+export function updateHandled() {
+  return {
+    type: contactActionType.updateHandled
+  }
+}

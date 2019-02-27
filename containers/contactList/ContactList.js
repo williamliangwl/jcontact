@@ -7,8 +7,12 @@ import { FloatingButton } from '../../components/floatingButton/FloatingButton';
 import { ItemSeparator } from '../../components/itemSeparator/ItemSeparator';
 import { color } from '../../themes/color';
 import styles from './ContactList.style';
+import { ContactListSkeleton } from './components/ContactListSkeleton/ContactListSkeleton';
+import { connect } from 'react-redux';
+import { updateHandled } from '../../actions/contactActions';
+import { showErrorAlert } from '../../actions/uiActions';
 
-export class ContactList extends React.Component {
+class ContactList extends React.Component {
 
   static navigationOptions = () => {
     return {
@@ -21,7 +25,8 @@ export class ContactList extends React.Component {
     this.state = {
       contacts: [],
       filtered: [],
-      query: ''
+      query: '',
+      isLoading: false,
     }
 
     this.navigateToContactDetails = this.navigateToContactDetails.bind(this);
@@ -35,7 +40,15 @@ export class ContactList extends React.Component {
     this.getContacts();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.hasUpdate !== this.props.hasUpdate && this.props.hasUpdate) {
+      this.getContacts();
+      this.props.dispatch(updateHandled());
+    }
+  }
+
   getContacts() {
+    this.setState({ isLoading: true });
     ContactApi.getContacts()
       .then(response => {
         if (response.isSuccess) {
@@ -44,9 +57,12 @@ export class ContactList extends React.Component {
             contacts: data,
             filtered: data,
           })
+        } else {
+          this.props.dispatch(showErrorAlert(response.data));
         }
       })
-      .catch(() => { });
+      .catch(() => { })
+      .then(() => this.setState({ isLoading: false }));
   }
 
   handleRenderContact({ item }) {
@@ -79,6 +95,33 @@ export class ContactList extends React.Component {
     this.setState({ query, filtered });
   }
 
+  renderList() {
+    if (this.state.isLoading) {
+      return (
+        <ContactListSkeleton />
+      );
+    }
+
+    return (
+      <FlatList
+        data={this.state.filtered}
+        renderItem={this.handleRenderContact}
+        keyExtractor={this.keyExtractor}
+        style={styles.container}
+        ItemSeparatorComponent={ItemSeparator}
+        keyboardShouldPersistTaps={'handled'}
+        keyboardDismissMode={'on-drag'}
+        refreshControl={
+          <RefreshControl
+            refreshing={false}
+            onRefresh={this.getContacts}
+            colors={[color.primary]}
+          />
+        }
+      />
+    )
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -89,24 +132,19 @@ export class ContactList extends React.Component {
           placeholder="Filter"
           placeholderTextColor="#999"
         />
-        <FlatList
-          data={this.state.filtered}
-          renderItem={this.handleRenderContact}
-          keyExtractor={this.keyExtractor}
-          style={styles.container}
-          ItemSeparatorComponent={ItemSeparator}
-          keyboardShouldPersistTaps={'handled'}
-          keyboardDismissMode={'on-drag'}
-          refreshControl={
-            <RefreshControl
-              refreshing={false}
-              onRefresh={this.getContacts}
-              colors={[color.primary]}
-            />
-          }
-        />
+
+        {this.renderList()}
         <FloatingButton name="add" onPress={this.navigateToAddContact} />
       </View>
     );
   }
 }
+
+function mapStateToProps({ contact: { hasUpdate } }) {
+  return {
+    hasUpdate
+  }
+}
+
+const Component = connect(mapStateToProps)(ContactList);
+export { Component as ContactList };

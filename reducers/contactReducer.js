@@ -1,6 +1,8 @@
 import { contactActionType } from "../constants/contactActionTypes";
 
 const defaultState = {
+  contact: {},
+  hasUpdate: false,
 }
 
 export function contactReducer(state = defaultState, action) {
@@ -8,19 +10,36 @@ export function contactReducer(state = defaultState, action) {
     case contactActionType.setContact:
       return {
         ...state,
-        ...action.data
+        contact: action.data
       }
     case contactActionType.updateContact:
       const { firstName, lastName, age, photo } = action.data;
       return {
         ...state,
-        firstName: firstName || state.firstName,
-        lastName: lastName || state.lastName,
-        age: age || state.age,
-        photo: photo || state.photo
+        contact: {
+          ...state.contact,
+          firstName: firstName || state.contact.firstName,
+          lastName: lastName || state.contact.lastName,
+          age: age || state.contact.age,
+          photo: photo || state.contact.photo,
+        },
+        hasUpdate: true
       };
+    case contactActionType.notifyUpdate:
+      return {
+        ...state,
+        hasUpdate: true
+      }
+    case contactActionType.updateHandled:
+      return {
+        ...state,
+        hasUpdate: false
+      }
     case contactActionType.resetContact:
-      return defaultState;
+      return {
+        ...state,
+        contact: {}
+      };
     default:
       return state;
   }

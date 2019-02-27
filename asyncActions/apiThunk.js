@@ -20,10 +20,11 @@ export function apiRequest(options) {
         .send(payload);
 
       const { body, status: statusCode } = await req;
+      const isSuccess = statusCode >= 200 && statusCode < 300
       res = {
         ...res,
-        isSuccess: statusCode >= 200 && statusCode < 300,
-        data: body
+        isSuccess,
+        data: isSuccess ? body : body.message
       }
 
     } catch (error) {
