@@ -11,6 +11,7 @@ import { ContactListSkeleton } from './components/ContactListSkeleton/ContactLis
 import { connect } from 'react-redux';
 import { updateHandled } from '../../actions/contactActions';
 import { showErrorAlert } from '../../actions/uiActions';
+import { NoData } from './components/NoData/NoData';
 
 class ContactList extends React.Component {
 
@@ -111,6 +112,7 @@ class ContactList extends React.Component {
         ItemSeparatorComponent={ItemSeparator}
         keyboardShouldPersistTaps={'handled'}
         keyboardDismissMode={'on-drag'}
+        ListEmptyComponent={NoData}
         refreshControl={
           <RefreshControl
             refreshing={false}
@@ -124,7 +126,7 @@ class ContactList extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} >
         <TextInput
           value={this.state.query}
           onChangeText={this.filterContact}
@@ -132,7 +134,6 @@ class ContactList extends React.Component {
           placeholder="Filter"
           placeholderTextColor="#999"
         />
-
         {this.renderList()}
         <FloatingButton name="add" onPress={this.navigateToAddContact} />
       </View>

@@ -9,6 +9,7 @@ import { Button } from '../../components/button/Button';
 import { showLoading, dismissLoading, showErrorAlert } from '../../actions/uiActions';
 import { JImagePicker } from '../../components/jImagePicker/JImagePicker';
 import { ContactValidator } from '../../validator/ContactValidator';
+import { JScrollView } from '../../components/jScrollView/JScrollView';
 
 class EditContact extends React.Component {
   constructor(props) {
@@ -98,7 +99,7 @@ class EditContact extends React.Component {
     const { firstName, firstNameErr, lastName, lastNameErr, age, ageErr, photo } = this.state;
 
     return (
-      <ScrollView style={styles.container}>
+      <JScrollView style={styles.container}>
         <JImagePicker onImagePicked={this.handleOnImagePicked} uri={photo} />
         <JTextInput
           value={firstName}
@@ -120,7 +121,7 @@ class EditContact extends React.Component {
           keyboardType={'phone-pad'}
         />
         <Button title="Save" onPress={this.validate} />
-      </ScrollView>
+      </JScrollView>
     );
   }
 }
