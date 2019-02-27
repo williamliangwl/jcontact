@@ -2,27 +2,32 @@ import React from 'react';
 import { Alert, View } from 'react-native';
 import { JTextInput } from '../../components/jTextInput/JTextInput';
 import { ContactApi } from '../../asyncActions/contactApi';
-import styles from './AddContact.styles';
-import { Button } from '../../components/button/Button';
+import { connect } from 'react-redux';
+import { updateContact } from '../../actions/contactActions';
 import { ImageRounded } from '../../components/imageRounded/ImageRounded';
+import styles from './EditContact.style';
+import { Button } from '../../components/button/Button';
 
-export class AddContact extends React.Component {
-  constructor() {
-    super();
+class EditContact extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const { firstName, lastName, age, photo } = this.props.contact;
     this.state = {
-      firstName: '',
+      firstName,
       firstNameErr: '',
-      lastName: '',
+      lastName,
       lastNameErr: '',
-      age: '',
+      age: age + '',
       ageErr: '',
-      photo: ''
+      photo: photo || ''
     }
+
 
     this.handleOnFirstNameChange = this.handleOnFirstNameChange.bind(this);
     this.handleOnLastNameChange = this.handleOnLastNameChange.bind(this);
     this.handleOnAgeChange = this.handleOnAgeChange.bind(this);
-    this.addContact = this.addContact.bind(this);
+    this.editContact = this.editContact.bind(this);
   }
 
   handleOnFirstNameChange(firstName) {
@@ -35,17 +40,23 @@ export class AddContact extends React.Component {
     this.setState({ age });
   }
 
-  addContact() {
+  editContact() {
     const { firstName, lastName, age, photo } = this.state;
-    ContactApi.addContact({
+    const { id } = this.props.contact;
+    const updatedContact = {
       firstName,
       lastName,
       age: +age,
       photo
+    }
+    ContactApi.editContact({
+      id,
+      ...updatedContact
     }).then(response => {
+      this.props.dispatch(updateContact(updatedContact));
       Alert.alert(
-        'Successful Add Contact',
-        'A new contact has been added successfully',
+        'Successful Edit Contact',
+        'The contact details has been updated',
         [
           { text: 'OK', onPress: () => this.props.navigation.goBack() }
         ]
@@ -54,12 +65,12 @@ export class AddContact extends React.Component {
   }
 
   render() {
-    const { firstName, firstNameErr, lastName, lastNameErr, age, ageErr } = this.state;
+    const { firstName, firstNameErr, lastName, lastNameErr, age, ageErr, photo } = this.state;
 
     return (
       <View style={styles.container}>
         <ImageRounded
-          source={{ uri: 'https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cg_face%2Cq_auto:good%2Cw_300/MTM5NTI0MjQ1OTkzNTYzNTY4/prince_william_photo_max_mumby_indigo_getty_images_500321416_croppedjpg.jpg' }}
+          source={{ uri: photo }}
           style={styles.profPic}
         />
         <JTextInput
@@ -81,8 +92,17 @@ export class AddContact extends React.Component {
           err={ageErr}
           keyboardType={'phone-pad'}
         />
-        <Button title="Save" onPress={this.addContact} />
+        <Button title="Save" onPress={this.editContact} />
       </View>
     );
   }
 }
+
+function mapStateToProps({ contact }) {
+  return {
+    contact
+  }
+}
+
+const Component = connect(mapStateToProps)(EditContact);
+export { Component as EditContact };

@@ -36,5 +36,21 @@ export const ContactApi = {
       method: 'DELETE',
       url: `contact/${id}`
     })
+  },
+
+  editContact({ id, firstName, lastName, age, photo }) {
+    const payload = {
+      firstName, lastName, age
+    };
+
+    if (photo) {
+      payload.photo = photo;
+    }
+
+    return apiRequest({
+      method: 'PUT',
+      url: `contact/${id}`,
+      payload
+    })
   }
 }

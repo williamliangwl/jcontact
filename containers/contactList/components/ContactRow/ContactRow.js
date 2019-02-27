@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import styles from './ContactRow.styles';
+import { ImageRounded } from '../../../../components/imageRounded/ImageRounded';
 
 export class ContactRow extends React.PureComponent {
   render() {
@@ -8,14 +9,14 @@ export class ContactRow extends React.PureComponent {
 
     return (
       <TouchableOpacity style={styles.container} onPress={() => onPress(id)}>
-        <Image
+        <ImageRounded
           source={{ uri: photo }}
           style={styles.profilePic}
         />
 
         <View>
           <Text style={styles.name}>{firstName} {lastName}</Text>
-          <Text>Age {age}</Text>
+          <Text style={styles.age}>Age {age}</Text>
         </View>
       </TouchableOpacity >
     )

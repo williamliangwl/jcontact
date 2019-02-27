@@ -1,13 +1,21 @@
 import React from 'react';
 import { Alert, Button, View, Image, Text } from 'react-native';
 import { ContactApi } from '../../asyncActions/contactApi';
+import { routes } from '../../constants/routes';
+import { FloatingButton } from '../../components/floatingButton/FloatingButton';
+import styles from './ContactDetails.style';
+import { connect } from 'react-redux';
+import { setContact, resetContact } from '../../actions/contactActions';
+import { ImageRounded } from '../../components/imageRounded/ImageRounded';
+import { HeaderButton } from '../../components/button/HeaderButton';
 
-export class ContactDetails extends React.Component {
+class ContactDetails extends React.Component {
   static navigationOptions = ({ navigation }) => {
     return {
       headerRight: (
-        <Button
+        <HeaderButton
           title="Delete"
+          textStyle={styles.deleteText}
           onPress={navigation.getParam('onDelete', () => { })}
         />
       )
@@ -17,13 +25,11 @@ export class ContactDetails extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      contact: null,
-      id: 0
-    }
+    this.state = {}
 
     this.confirmDelete = this.confirmDelete.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.navigateToEditContact = this.navigateToEditContact.bind(this);
 
     this.props.navigation.setParams({
       onDelete: this.confirmDelete
@@ -39,11 +45,14 @@ export class ContactDetails extends React.Component {
     ContactApi.getContactDetail(id)
       .then(response => {
         if (response.isSuccess) {
-          this.setState({
-            contact: response.data.data
-          })
+          const contact = response.data.data;
+          this.props.dispatch(setContact(contact));
         }
       })
+  }
+
+  componentWillUnmount() {
+    this.props.dispatch(resetContact());
   }
 
   confirmDelete() {
@@ -58,7 +67,7 @@ export class ContactDetails extends React.Component {
   }
 
   handleDelete() {
-    ContactApi.deleteContact(this.props.navigation.getParam("id", ""))
+    ContactApi.deleteContact(this.props.contact.id)
       .then(response => {
         if (response.isSuccess) {
           Alert.alert(
@@ -72,24 +81,37 @@ export class ContactDetails extends React.Component {
       })
   }
 
+  navigateToEditContact() {
+    this.props.navigation.navigate(routes.EditContact);
+  }
+
   render() {
-    if (!this.state.contact) {
+    if (!this.props.contact) {
       return null;
     }
 
-    const { id, firstName, lastName, photo, age } = this.state.contact;
+    const { firstName, lastName, photo, age } = this.props.contact;
     return (
-      <View>
+      <View style={styles.container}>
+        <FloatingButton title="Edit" onPress={this.navigateToEditContact} />
+        <ImageRounded
+          source={{ uri: photo }}
+          style={styles.profPic}
+        />
         <View>
-          <Image
-            source={{ uri: photo }}
-          />
-        </View>
-        <View>
-          <Text>{firstName} {lastName}</Text>
-          <Text>{age}</Text>
+          <Text style={styles.name}>{firstName} {lastName}</Text>
+          <Text style={styles.age}>Age {age}</Text>
         </View>
       </View>
     )
   }
 }
+
+function mapStateToProps({ contact }) {
+  return {
+    contact
+  }
+}
+
+const Component = connect(mapStateToProps)(ContactDetails);
+export { Component as ContactDetails }

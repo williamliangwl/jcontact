@@ -8,15 +8,14 @@
  */
 
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import AppNavigation from './containers/app/AppNavigation';
-import { ContactList } from './containers/contactList/ContactList';
 
 export default class App extends Component {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <AppNavigation />
+        <AppNavigation persistenceKey={"nav"} />
       </View>
     );
   }
