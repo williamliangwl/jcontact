@@ -4,11 +4,11 @@ import { JTextInput } from '../../components/jTextInput/JTextInput';
 import { ContactApi } from '../../asyncActions/contactApi';
 import { connect } from 'react-redux';
 import { updateContact } from '../../actions/contactActions';
-import { ImageRounded } from '../../components/imageRounded/ImageRounded';
 import styles from './EditContact.style';
 import { Button } from '../../components/button/Button';
 import { showLoading, dismissLoading } from '../../actions/uiActions';
 import { JImagePicker } from '../../components/jImagePicker/JImagePicker';
+import { ContactValidator } from '../../validator/ContactValidator';
 
 class EditContact extends React.Component {
   constructor(props) {
@@ -31,6 +31,7 @@ class EditContact extends React.Component {
     this.handleOnAgeChange = this.handleOnAgeChange.bind(this);
     this.handleOnImagePicked = this.handleOnImagePicked.bind(this);
     this.editContact = this.editContact.bind(this);
+    this.validate = this.validate.bind(this);
   }
 
   handleOnFirstNameChange(firstName) {
@@ -44,6 +45,22 @@ class EditContact extends React.Component {
   }
   handleOnImagePicked(photo) {
     this.setState({ photo });
+  }
+
+  validate() {
+    const { firstName, lastName, age } = this.state;
+    const { firstNameErr, lastNameErr, ageErr } = ContactValidator.validate({ firstName, lastName, age });
+    const hasError = firstNameErr || lastNameErr || ageErr;
+
+    if (hasError) {
+      this.setState({
+        firstNameErr,
+        lastNameErr,
+        ageErr
+      });
+    } else {
+      this.editContact()
+    }
   }
 
   editContact() {
@@ -61,14 +78,17 @@ class EditContact extends React.Component {
       id,
       ...updatedContact
     }).then(response => {
-      this.props.dispatch(updateContact(updatedContact));
-      Alert.alert(
-        'Successful Edit Contact',
-        'The contact details has been updated',
-        [
-          { text: 'OK', onPress: () => this.props.navigation.goBack() }
-        ]
-      )
+      console.warn(response);
+      if (response.isSuccess) {
+        this.props.dispatch(updateContact(updatedContact));
+        Alert.alert(
+          'Successful Edit Contact',
+          'The contact details has been updated',
+          [
+            { text: 'OK', onPress: () => this.props.navigation.goBack() }
+          ]
+        )
+      }
     }).catch(err => { })
       .then(() => this.props.dispatch(dismissLoading()));
   }
@@ -98,7 +118,7 @@ class EditContact extends React.Component {
           err={ageErr}
           keyboardType={'phone-pad'}
         />
-        <Button title="Save" onPress={this.editContact} />
+        <Button title="Save" onPress={this.validate} />
       </ScrollView>
     );
   }

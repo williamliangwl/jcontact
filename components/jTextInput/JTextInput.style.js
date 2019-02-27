@@ -8,10 +8,10 @@ export default StyleSheet.create({
   },
   textInput: {
     ...fonts.secondaryNormal,
-    // backgroundColor: '#0f0',
+    fontSize: 18
   },
   errorText: {
-    ...fonts.secondaryNormal,
+    ...fonts.smallNormal,
     color: color.error,
     marginLeft: 3
   }

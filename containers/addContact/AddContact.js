@@ -7,6 +7,7 @@ import { Button } from '../../components/button/Button';
 import { showLoading, dismissLoading } from '../../actions/uiActions';
 import { connect } from 'react-redux';
 import { JImagePicker } from '../../components/jImagePicker/JImagePicker';
+import { ContactValidator } from '../../validator/ContactValidator';
 
 class AddContact extends React.Component {
   constructor() {
@@ -25,6 +26,7 @@ class AddContact extends React.Component {
     this.handleOnLastNameChange = this.handleOnLastNameChange.bind(this);
     this.handleOnAgeChange = this.handleOnAgeChange.bind(this);
     this.handleOnImagePicked = this.handleOnImagePicked.bind(this);
+    this.validate = this.validate.bind(this);
     this.addContact = this.addContact.bind(this);
   }
 
@@ -39,6 +41,22 @@ class AddContact extends React.Component {
   }
   handleOnImagePicked(photo) {
     this.setState({ photo });
+  }
+
+  validate() {
+    const { firstName, lastName, age } = this.state;
+    const { firstNameErr, lastNameErr, ageErr } = ContactValidator.validate({ firstName, lastName, age });
+    const hasError = firstNameErr || lastNameErr || ageErr;
+
+    if (hasError) {
+      this.setState({
+        firstNameErr,
+        lastNameErr,
+        ageErr
+      });
+    } else {
+      this.addContact()
+    }
   }
 
   addContact() {
@@ -90,7 +108,7 @@ class AddContact extends React.Component {
           err={ageErr}
           keyboardType={'phone-pad'}
         />
-        <Button title="Save" onPress={this.addContact} />
+        <Button title="Save" onPress={this.validate} />
       </ScrollView>
     );
   }

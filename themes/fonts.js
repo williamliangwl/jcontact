@@ -6,7 +6,8 @@ const type = {
 
 const size = {
   h2: 20,
-  normal: 14
+  normal: 14,
+  small: 12
 }
 
 export const fonts = {
@@ -25,5 +26,9 @@ export const fonts = {
   secondaryNormal: {
     fontFamily: type.openSansReg,
     fontSize: size.normal
+  },
+  smallNormal: {
+    fontFamily: type.openSansReg,
+    fontSize: size.small
   }
 }

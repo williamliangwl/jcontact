@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, RefreshControl, FlatList } from 'react-native';
+import { View, RefreshControl, FlatList, TextInput } from 'react-native';
 import { ContactRow } from './components/ContactRow/ContactRow';
 import { routes } from '../../constants/routes';
 import { ContactApi } from '../../asyncActions/contactApi';
 import { FloatingButton } from '../../components/floatingButton/FloatingButton';
 import { ItemSeparator } from '../../components/itemSeparator/ItemSeparator';
 import { color } from '../../themes/color';
+import styles from './ContactList.style';
 
 export class ContactList extends React.Component {
 
@@ -19,12 +20,15 @@ export class ContactList extends React.Component {
     super();
     this.state = {
       contacts: [],
+      filtered: [],
+      query: ''
     }
 
     this.navigateToContactDetails = this.navigateToContactDetails.bind(this);
     this.navigateToAddContact = this.navigateToAddContact.bind(this);
     this.handleRenderContact = this.handleRenderContact.bind(this);
     this.getContacts = this.getContacts.bind(this);
+    this.filterContact = this.filterContact.bind(this);
   }
 
   componentDidMount() {
@@ -34,9 +38,11 @@ export class ContactList extends React.Component {
   getContacts() {
     ContactApi.getContacts()
       .then(response => {
-        if (response.data) {
+        if (response.isSuccess) {
+          const { data } = response.data
           this.setState({
-            contacts: response.data.data
+            contacts: data,
+            filtered: data,
           })
         }
       })
@@ -66,15 +72,31 @@ export class ContactList extends React.Component {
     return contact.id;
   }
 
+  filterContact(query) {
+    const filtered = this.state.contacts.filter(c => {
+      return c.firstName.includes(query) || c.lastName.includes(query)
+    });
+    this.setState({ query, filtered });
+  }
+
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <TextInput
+          value={this.state.query}
+          onChangeText={this.filterContact}
+          style={styles.searchBar}
+          placeholder="Filter"
+          placeholderTextColor="#999"
+        />
         <FlatList
-          data={this.state.contacts}
+          data={this.state.filtered}
           renderItem={this.handleRenderContact}
           keyExtractor={this.keyExtractor}
-          style={{ flex: 1 }}
+          style={styles.container}
           ItemSeparatorComponent={ItemSeparator}
+          keyboardShouldPersistTaps={'handled'}
+          keyboardDismissMode={'on-drag'}
           refreshControl={
             <RefreshControl
               refreshing={false}
