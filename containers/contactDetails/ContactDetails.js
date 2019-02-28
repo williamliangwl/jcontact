@@ -5,7 +5,7 @@ import { routes } from '../../constants/routes';
 import { FloatingButton } from '../../components/floatingButton/FloatingButton';
 import styles from './ContactDetails.style';
 import { connect } from 'react-redux';
-import { setContact, resetContact } from '../../actions/contactActions';
+import { setContact, resetContact, notifyUpdate } from '../../actions/contactActions';
 import { ImageRounded } from '../../components/imageRounded/ImageRounded';
 import { HeaderButton } from '../../components/button/HeaderButton';
 import { ContactDetailsSkeleton } from './components/contactDetailsSkeleton/ContactDetailsSkeleton';
@@ -79,6 +79,7 @@ class ContactDetails extends React.Component {
     ContactApi.deleteContact(this.props.contact.id)
       .then(response => {
         if (response.isSuccess) {
+          this.props.dispatch(notifyUpdate());
           Alert.alert(
             'Delete Successful',
             'Contact has been deleted',

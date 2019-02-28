@@ -50,15 +50,15 @@ class AddContact extends React.Component {
     const { firstNameErr, lastNameErr, ageErr } = ContactValidator.validate({ firstName, lastName, age });
     const hasError = firstNameErr || lastNameErr || ageErr;
 
-    if (hasError) {
-      this.setState({
-        firstNameErr,
-        lastNameErr,
-        ageErr
-      });
-    } else {
+    if (!hasError) {
       this.addContact()
     }
+
+    this.setState({
+      firstNameErr,
+      lastNameErr,
+      ageErr
+    });
   }
 
   addContact() {

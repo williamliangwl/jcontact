@@ -4,6 +4,8 @@ import { ImageRounded } from '../imageRounded/ImageRounded';
 import ImagePicker from 'react-native-image-picker';
 import styles from './JImagePicker.style';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { PermissionHelper } from '../../helpers/PermissionHelper';
+import { androidPermissions } from '../../constants/permissions';
 
 const options = {
   title: 'Select Photo',
@@ -24,6 +26,21 @@ export class JImagePicker extends React.PureComponent {
     }
 
     this.handlePickImage = this.handlePickImage.bind(this);
+    this.checkPermission = this.checkPermission.bind(this);
+  }
+
+  checkPermission() {
+    PermissionHelper.request([
+      androidPermissions.writeExternalStorage,
+      androidPermissions.readExternalStorage,
+      androidPermissions.camera
+    ])
+      .then(hasPermission => {
+        if (hasPermission) {
+          this.handlePickImage();
+        }
+      })
+      .catch(() => { });
   }
 
   handlePickImage() {
@@ -53,7 +70,7 @@ export class JImagePicker extends React.PureComponent {
 
   render() {
     return (
-      <TouchableOpacity onPress={this.handlePickImage}>
+      <TouchableOpacity onPress={this.checkPermission}>
         {this.renderImage()}
       </TouchableOpacity>
     );
